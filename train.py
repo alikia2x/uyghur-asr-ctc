@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import pandas as pd
 import torch
 import torch.nn.functional as F
 
@@ -128,25 +129,59 @@ def train(model, train_loader):
 
 
 if __name__ == "__main__":
-    device = "mps"
+    device = "cuda"
+    
+    training_data_path = './data/training/'
     
     os.makedirs('./results',exist_ok=True)
+    os.makedirs('./tmp',exist_ok=True)
+    
+    # Read the folder train, list all the files in it
+    files = os.listdir(training_data_path)
+    # Filter out the files that are not csv/tsv files
+    files = [f for f in files if f.endswith('.csv') or f.endswith('.tsv')]
+    # Find out the file with `_train` and `_test`
+    train_files = [f for f in files if '_train' in f]
+    test_files  = [f for f in files if '_test' in f]
 
-    train_file = 'thuyg20_train.csv'
-    test_file  = 'thuyg20_test.csv'
+    # Read all train files, combine their `path` and `script` columns
+    train_df = pd.DataFrame()
+    for f in train_files:
+        if f.endswith('.tsv'):
+            df = pd.read_csv(training_data_path + f, sep='\t')
+        else:
+            df = pd.read_csv(training_data_path + f)
+        
+        train_df = pd.concat([train_df, df])
+    # Read all test files, combine their `path` and `script` columns
+    test_df = pd.DataFrame()
+    for f in test_files:
+        if f.endswith('.tsv'):
+            df = pd.read_csv(training_data_path + f, sep='\t')
+        else:
+            df = pd.read_csv(training_data_path + f)
+        test_df = pd.concat([test_df, df])
+    
+    # Save the combined dataframe to csv
+    train_df.to_csv('./tmp/train.csv', index=False)
+    test_df.to_csv('./tmp/test.csv', index=False)
+
+    train_file = './tmp/train.csv'
+    test_file  = './tmp/test.csv'
     
     train_set    = SpeechDataset(train_file, augumentation=True)
-    train_loader = SpeechDataLoader(train_set,num_workers=4, pin_memory = True, shuffle=True, batch_size=20)
+    train_loader = SpeechDataLoader(train_set, num_workers=8, pin_memory = True, shuffle=True, batch_size=64)
 
     validation_set = SpeechDataset(test_file, augumentation=False)
-    validation_loader = SpeechDataLoader(validation_set,num_workers=4, pin_memory = True, shuffle=True, batch_size=20)
+    validation_loader = SpeechDataLoader(validation_set, num_workers=8, pin_memory = True, shuffle=True, batch_size=64)
 
     print("="*50)
+    
     msg =  f"        Training Set: {train_file}, {len(train_set)} samples" + "\n" 
     msg += f"      Validation Set: {test_file}, {len(validation_set)} samples" + "\n"
     msg += f"         Vocab Size : {uyghur_latin.vocab_size}" 
-
     print(msg)
+    
     model = UModel(num_features_input = featurelen) 
 
     print("="*50)

@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
@@ -38,7 +39,7 @@ def addnoise(audio):
 
 def randomstretch(audio):
     factor = random.uniform(0.8, 1.2)
-    audio = librosa.core.resample(audio,sample_rate,sample_rate*factor)
+    audio = librosa.core.resample(audio, orig_sr=sample_rate, target_sr=sample_rate*factor)
     return audio
 
 #def spec_augment(feat, T=70, F=15, time_mask_num=1, freq_mask_num=1):
@@ -104,18 +105,19 @@ def melfuture(wav_path, augument = False):
 class SpeechDataset(Dataset):
     def __init__(self, index_path, augumentation = False):
         self.Raw = False
-        with open(index_path,encoding='utf_8_sig') as f:
-            lines = f.readlines()
-
-        self.idx  = []
-        for x in lines:
-            item = x.strip().split("\t")
-            if os.path.exists(item[0]):
-                line = []
-                line.append(item[0])
-                char_indx = uyghur_latin.encode(item[1])
-                line.append(char_indx)
-                self.idx.append(line)
+        self.idx = []
+        
+        df = pd.read_csv(index_path)
+        for _, row in df.iterrows():
+            path = row['path']
+            sentence = row['script']
+            if not os.path.exists(path):
+                continue
+            line = []
+            line.append(path)
+            char_indx = uyghur_latin.encode(sentence)
+            line.append(char_indx)
+            self.idx.append(line)
 
         self.augument = augumentation
     
