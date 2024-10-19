@@ -1,7 +1,11 @@
 import sys
-import os
 from data import featurelen
 from UModel import UModel
+from umsc import UgMultiScriptConverter
+source_script = 'UAS'
+target_script = 'ULS'
+converter = UgMultiScriptConverter(source_script, target_script)
+
 
 if __name__ == '__main__':
     model = UModel(featurelen)
@@ -12,6 +16,6 @@ if __name__ == '__main__':
         device = 'cpu'
         model.to(device)
         audiofile = sys.argv[1]
-        print(f"\n======================\nRecognizing file {audiofile}")
         txt = model.predict(audiofile,device)
-        print("%s -> %s" %(os.path.basename(audiofile),txt))
+        script = converter(txt)
+        print(script)

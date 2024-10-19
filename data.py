@@ -17,10 +17,10 @@ window_len  = fft_len
 window      = "hann"
 hop_len     = 200
 
-white_noise,_=librosa.load('white.wav',sr=sample_rate, duration=15.0)
-perlin_noise,_=librosa.load('perlin.wav',sr=sample_rate, duration=15.0)
-cafe_noise, _ = librosa.load('cafe.wav',sr=sample_rate, duration=15.0)
-radio_noise, _ = librosa.load('radionoise.wav',sr=sample_rate, duration=15.0)
+white_noise,_=librosa.load('./assets/white.wav',sr=sample_rate, duration=15.0)
+perlin_noise,_=librosa.load('./assets/perlin.wav',sr=sample_rate, duration=15.0)
+cafe_noise, _ = librosa.load('./assets/cafe.wav',sr=sample_rate, duration=15.0)
+radio_noise, _ = librosa.load('./assets/radionoise.wav',sr=sample_rate, duration=15.0)
 
 def addnoise(audio):
     rnd = random.random()

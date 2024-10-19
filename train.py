@@ -128,7 +128,7 @@ def train(model, train_loader):
 
 
 if __name__ == "__main__":
-    device = "cuda"
+    device = "mps"
     
     os.makedirs('./results',exist_ok=True)
 
@@ -167,9 +167,10 @@ if __name__ == "__main__":
         torch.cuda.empty_cache()
         model.eval()
         msg = ""
-        for afile in testfile:
-            text = model.predict(afile,device)
-            text = f"{afile}-->{text}\n"
+        for file in testfile:
+            file = "./test/" + file
+            text = model.predict(file,device)
+            text = f"{file}-->{text}\n"
             print(text,end="")
             msg += text
 

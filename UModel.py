@@ -162,12 +162,12 @@ if __name__ == "__main__":
     net = UModel(featurelen).to(device)
     #net.save(0)
 
-    text = net.predict("test1.wav",device)
+    text = net.predict("./test/test1.wav",device)
     print(text)
-    text = net.predict("test2.wav",device)
+    text = net.predict("./test/test2.wav",device)
     print(text)
 
-    melf = melfuture("test3.wav")
+    melf = melfuture("./test/test3.wav")
     melf.unsqueeze_(0)
 
     conv0 = nn.Conv1d(featurelen,256,11,2, 5, 1)
